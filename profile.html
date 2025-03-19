@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Editable Profile with Picture Upload</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        input[type="file"] {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+<!-- Profile Card Wrapper -->
+<div class="w-full max-w-4xl bg-white rounded-lg shadow-lg overflow-hidden">
+
+    <!-- Header Section -->
+    <div class="bg-blue-500 h-28 md:h-36 relative">
+        <div class="absolute -bottom-12 left-4 md:left-8 group">
+            <div class="w-24 h-24 md:w-28 md:h-28 rounded-full bg-gray-100 border-4 border-white overflow-hidden relative cursor-pointer">
+                <img id="profileImage" src="https://via.placeholder.com/150" alt="Profile Picture" class="w-full h-full object-cover">
+
+                <!-- Overlay for changing picture -->
+                <label for="profileImageInput" class="absolute inset-0 bg-black bg-opacity-50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition cursor-pointer text-xs">
+                    Change Picture
+                </label>
+                <input type="file" id="profileImageInput" accept="image/*" onchange="handleImageChange(event)">
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Profile Content -->
+    <div class="p-6 pt-16 md:pt-20">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+            <div>
+                <h2 class="text-2xl font-semibold text-gray-800" id="profileName">John Doe</h2>
+                <p class="text-sm text-gray-500">User ID: #123456</p>
+            </div>
+            <div class="mt-4 md:mt-0">
+                <button 
+                    id="editProfileBtn" 
+                    class="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition"
+                    onclick="toggleEdit()">
+                    Edit Profile
+                </button>
+            </div>
+        </div>
+
+        <!-- View Mode -->
+        <div id="viewMode" class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div><p class="text-gray-500 text-sm">Email Address</p><p class="text-gray-800 font-medium" id="profileEmail">john.doe@example.com</p></div>
+            <div><p class="text-gray-500 text-sm">Phone Number</p><p class="text-gray-800 font-medium" id="profilePhone">+1 (123) 456-7890</p></div>
+            <div><p class="text-gray-500 text-sm">Date of Birth</p><p class="text-gray-800 font-medium" id="profileDob">January 15, 1990</p></div>
+            <div><p class="text-gray-500 text-sm">Address</p><p class="text-gray-800 font-medium" id="profileAddress">123 Main St, Springfield, USA</p></div>
+        </div>
+
+        <!-- Edit Mode (hidden by default) -->
+        <form id="editMode" class="hidden mt-6 grid grid-cols-1 md:grid-cols-2 gap-6" onsubmit="saveProfile(event)">
+            <div><p class="text-gray-500 text-sm">Email Address</p><input type="email" id="editEmail" class="w-full border rounded p-2 text-gray-700" value="john.doe@example.com"></div>
+            <div><p class="text-gray-500 text-sm">Phone Number</p><input type="text" id="editPhone" class="w-full border rounded p-2 text-gray-700" value="+1 (123) 456-7890"></div>
+            <div><p class="text-gray-500 text-sm">Date of Birth</p><input type="date" id="editDob" class="w-full border rounded p-2 text-gray-700" value="1990-01-15"></div>
+            <div><p class="text-gray-500 text-sm">Address</p><input type="text" id="editAddress" class="w-full border rounded p-2 text-gray-700" value="123 Main St, Springfield, USA"></div>
+            <div class="col-span-2 text-right mt-4">
+                <button type="button" class="bg-gray-500 text-white px-6 py-2 rounded-md mr-2" onclick="cancelEdit()">Cancel</button>
+                <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded-md">Save Changes</button>
+            </div>
+        </form>
+
+        <!-- Bio Section -->
+        <div class="mt-6">
+            <p class="text-gray-500 text-sm">Bio</p>
+            <p class="text-gray-800 text-sm leading-relaxed" id="profileBio">
+                Frontend Developer with a passion for clean and responsive design.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript -->
+<script>
+    function toggleEdit() {
+        document.getElementById('viewMode').classList.toggle('hidden');
+        document.getElementById('editMode').classList.toggle('hidden');
+        document.getElementById('editProfileBtn').innerText = 
+            document.getElementById('editMode').classList.contains('hidden') ? 'Edit Profile' : 'Cancel Edit';
+    }
+
+    function cancelEdit() {
+        toggleEdit();
+    }
+
+    function saveProfile(event) {
+        event.preventDefault();
+        const email = document.getElementById('editEmail').value;
+        const phone = document.getElementById('editPhone').value;
+        const dob = document.getElementById('editDob').value;
+        const address = document.getElementById('editAddress').value;
+
+        document.getElementById('profileEmail').innerText = email;
+        document.getElementById('profilePhone').innerText = phone;
+        document.getElementById('profileDob').innerText = formatDate(dob);
+        document.getElementById('profileAddress').innerText = address;
+
+        toggleEdit();
+    }
+
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    }
+
+    function handleImageChange(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('profileImage').src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,242 @@
+create_classroom.php:
+<?php
+session_start();
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'teacher') {
+    header("Location: ../public/index.php");
+    exit();
+}
+
+// Include database connection
+require_once '../config/database.php';
+
+// Initialize messages
+$successMessage = $errorMessage = "";
+
+// Process form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $className = trim($_POST['class_name']);
+    $classPassword = trim($_POST['class_password']); // Used as class_code
+    $teacherId = $_SESSION['id'];
+
+    if (!empty($className) && !empty($classPassword)) {
+        try {
+            $stmt = $pdo->prepare("INSERT INTO classrooms (class_code, subject, teacher_id) VALUES (:class_code, :subject, :teacher_id)");
+            $stmt->execute([
+                ':class_code' => $classPassword,
+                ':subject'    => $className,
+                ':teacher_id' => $teacherId
+            ]);
+            $successMessage = "Classroom created successfully!";
+        } catch (PDOException $e) {
+            if ($e->errorInfo[1] == 1062) {
+                $errorMessage = "A classroom with this password already exists.";
+            } else {
+                $errorMessage = "Error: " . $e->getMessage();
+            }
+        }
+    } else {
+        $errorMessage = "All fields are required.";
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Create Classroom</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+
+            if (sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            }
+        }
+
+        function checkScreenSize() {
+            if (window.innerWidth >= 768) {
+                document.getElementById('sidebar').classList.remove('-translate-x-full');
+                document.getElementById('overlay').classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            } else {
+                document.getElementById('sidebar').classList.add('-translate-x-full');
+            }
+        }
+
+        window.addEventListener('resize', checkScreenSize);
+
+        function openModal() {
+            document.getElementById("classroomModal").classList.remove("hidden");
+        }
+
+        function closeModal() {
+            document.getElementById("classroomModal").classList.add("hidden");
+        }
+    </script>
+</head>
+<body class="h-screen flex bg-gray-100">
+
+    <!-- Overlay (for mobile) -->
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden md:hidden transition-opacity duration-300" onclick="toggleSidebar()"></div>
+
+    <!-- Include Sidebar -->
+    <?php include '../includes/teacher_nav.php'; ?>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col">
+        <header class="bg-white shadow-md p-4 flex justify-between items-center md:hidden">
+            <button class="text-gray-600 text-2xl focus:outline-none" onclick="toggleSidebar()">☰</button>
+            <h2 class="text-lg font-bold">Create Classroom</h2>
+        </header>
+
+        <main class="flex-1 p-6">
+            <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-gray-700">My Classrooms</h1>
+                <button onclick="openModal()" class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition">+ Create Classroom</button>
+            </div>
+
+            <!-- Display Messages -->
+            <?php if (!empty($successMessage)): ?>
+                <div class="mt-4 p-3 bg-green-100 text-green-800 rounded">
+                    <?php echo htmlspecialchars($successMessage); ?>
+                </div>
+            <?php elseif (!empty($errorMessage)): ?>
+                <div class="mt-4 p-3 bg-red-100 text-red-800 rounded">
+                    <?php echo htmlspecialchars($errorMessage); ?>
+                </div>
+            <?php endif; ?>
+
+            <!-- Classroom Cards -->
+            <div class="mt-6 grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                <?php
+                $stmt = $pdo->prepare("SELECT * FROM classrooms WHERE teacher_id = ?");
+                $stmt->execute([$_SESSION['id']]);
+                $classrooms = $stmt->fetchAll();
+
+                if (count($classrooms) > 0): 
+                    foreach ($classrooms as $classroom): ?>
+                        <a href="manage_class.php?class_id=<?php echo htmlspecialchars($classroom['id']); ?>" 
+                           class="block p-5 bg-white shadow-md rounded-lg border border-gray-200 hover:bg-blue-50 transition">
+                            <h3 class="text-lg font-semibold"><?php echo htmlspecialchars($classroom['subject']); ?></h3>
+                            <p class="text-gray-600 text-sm">Class Code: <strong><?php echo htmlspecialchars($classroom['class_code']); ?></strong></p>
+                        </a>
+                    <?php endforeach; 
+                else: ?>
+                    <p class="text-gray-500">No classrooms created yet.</p>
+                <?php endif; ?>
+            </div>
+        </main>
+    </div>
+
+    <!-- Classroom Creation Modal -->
+    <div id="classroomModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-96">
+            <h2 class="text-xl font-bold text-gray-700 mb-4">Create a Classroom</h2>
+            
+            <form method="POST">
+                <label class="block text-gray-700">Classroom Name:</label>
+                <input type="text" name="class_name" class="w-full p-2 border rounded mt-2 focus:ring-2 focus:ring-blue-500" required>
+
+                <label class="block text-gray-700 mt-4">Classroom Password:</label>
+                <input type="password" name="class_password" class="w-full p-2 border rounded mt-2 focus:ring-2 focus:ring-blue-500" required>
+
+                <div class="mt-4 flex justify-end">
+                    <button type="button" onclick="closeModal()" class="bg-gray-400 text-white py-2 px-4 rounded hover:bg-gray-500 transition">Cancel</button>
+                    <button type="submit" class="ml-2 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>
+
+
+
+manage_class.php:
+<?php
+session_start();
+require_once '../config/database.php'; 
+
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'teacher') {
+    header("Location: ../public/index.php");
+    exit();
+}
+
+$teacherId = $_SESSION['id'] ?? null;
+$classId = $_GET['class_id'] ?? null;
+
+// Validate class ownership
+$stmt = $pdo->prepare("SELECT * FROM classrooms WHERE id = ? AND teacher_id = ?");
+$stmt->execute([$classId, $teacherId]);
+$classroom = $stmt->fetch();
+
+if (!$classroom) {
+    die("<script>alert('Class not found or unauthorized.'); window.location='create_classroom.php';</script>");
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Manage Classroom</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="h-screen flex bg-gray-100">
+
+    <!-- Include Sidebar -->
+    <?php include '../includes/teacher_nav.php'; ?>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col p-6">
+        <h1 class="text-2xl font-bold text-gray-700">Manage Classroom: <?php echo htmlspecialchars($classroom['subject']); ?></h1>
+        <p class="text-gray-600">Class Code: <strong><?php echo htmlspecialchars($classroom['class_code']); ?></strong></p>
+
+        <!-- Back to Dashboard -->
+        <a href="create_classroom.php" class="mt-4 inline-block bg-gray-600 text-white py-2 px-4 rounded hover:bg-gray-700 transition">Back to Classrooms</a>
+    </div>
+
+</body>
+</html>
+
+
+
+sql_schema: Users table: stores all user data with separate columns for last and first names
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    lastname VARCHAR(50) NOT NULL,
+    firstname VARCHAR(50) NOT NULL,
+    username VARCHAR(50) UNIQUE NOT NULL, -- LRN for students, Teacher ID for teachers, and a unique username for admins
+    role ENUM('admin', 'teacher', 'student') NOT NULL, -- Defines the user type
+    password VARCHAR(255) NOT NULL, -- Store hashed passwords
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- Tracks when the user was created
+) ENGINE=InnoDB;
+
+-- Classrooms table: represents classes created by teachers
+CREATE TABLE classrooms (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    class_code VARCHAR(50) UNIQUE NOT NULL,
+    subject VARCHAR(255) NOT NULL,
+    teacher_id INT NOT NULL, -- References the teacher in the users table
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (teacher_id) REFERENCES users(id)
+) ENGINE=InnoDB;
+
+-- Enrollments table: links students to classrooms, enabling many-to-many relationships
+CREATE TABLE enrollments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    classroom_id INT NOT NULL, -- References the classroom
+    student_id INT NOT NULL, -- References the student in the users table
+    enrolled_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (classroom_id) REFERENCES classrooms(id) ON DELETE CASCADE,
+    FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE (classroom_id, student_id) -- Prevents duplicate enrollments
+) ENGINE=InnoDB;
