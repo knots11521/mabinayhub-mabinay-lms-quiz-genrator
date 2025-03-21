@@ -69,7 +69,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_user'])) {
 
             const modal = document.getElementById("editUserModal");
             const modalContent = document.getElementById("editModalContent");
-
             modal.classList.remove("hidden");
             document.body.classList.add("overflow-hidden");
 

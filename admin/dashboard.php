@@ -47,7 +47,7 @@ $totalStudents = $pdo->query("SELECT COUNT(*) FROM users WHERE role = 'student'"
         window.addEventListener('resize', checkScreenSize);
     </script>
 </head>
-<body class="h-screen flex bg-gray-100">
+<body class="flex bg-gray-100 min-h-screen">
 
 <!-- Overlay -->
 <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden md:hidden transition-opacity duration-300" onclick="toggleSidebar()"></div>
@@ -57,45 +57,45 @@ $totalStudents = $pdo->query("SELECT COUNT(*) FROM users WHERE role = 'student'"
 
 <!-- Main Content -->
 <div class="flex-1 flex flex-col">
-    <header class="bg-white shadow-md p-4 flex justify-between items-center md:hidden">
-        <button id="burger-btn" class="text-gray-600 text-2xl focus:outline-none" onclick="toggleSidebar()">☰</button>
-        <h2 class="text-lg font-bold">Admin Dashboard</h2>
+    <header class="bg-[#008080] shadow-md p-4 flex justify-between items-center md:hidden">
+        <button id="burger-btn" class="text-white text-2xl focus:outline-none" onclick="toggleSidebar()">☰</button>
+        <h2 class="text-lg font-bold text-white">Admin Dashboard</h2>
     </header>
 
-    <main class="flex-1 p-6 space-y-6">
+    <main class="flex-1 p-6 space-y-6 transition-all duration-300 md:ml-64">
 
-        <h2 class="text-2xl font-bold text-gray-800">Welcome, Admin</h2>
+        <h2 class="text-2xl font-bold text-[#008080]">Welcome, Admin</h2>
 
         <!-- Quick Stats (Summary) -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-white p-6 rounded-lg shadow text-center">
+            <div class="bg-white p-6 rounded-lg shadow text-center border-t-4 border-[#008080]">
                 <h3 class="text-lg font-semibold">Total Users</h3>
-                <p class="text-3xl font-bold mt-2"><?= $totalUsers; ?></p>
+                <p class="text-3xl font-bold mt-2 text-[#008080]"><?= $totalUsers; ?></p>
             </div>
-            <div class="bg-white p-6 rounded-lg shadow text-center">
+            <div class="bg-white p-6 rounded-lg shadow text-center border-t-4 border-[#008080]">
                 <h3 class="text-lg font-semibold">Teachers</h3>
-                <p class="text-3xl font-bold mt-2"><?= $totalTeachers; ?></p>
+                <p class="text-3xl font-bold mt-2 text-[#008080]"><?= $totalTeachers; ?></p>
             </div>
-            <div class="bg-white p-6 rounded-lg shadow text-center">
+            <div class="bg-white p-6 rounded-lg shadow text-center border-t-4 border-[#008080]">
                 <h3 class="text-lg font-semibold">Students</h3>
-                <p class="text-3xl font-bold mt-2"><?= $totalStudents; ?></p>
+                <p class="text-3xl font-bold mt-2 text-[#008080]"><?= $totalStudents; ?></p>
             </div>
         </div>
 
         <!-- Quick Links (Navigation Shortcuts) -->
         <div class="bg-white p-6 rounded-lg shadow">
-            <h3 class="text-xl font-semibold mb-4">Quick Actions</h3>
+            <h3 class="text-xl font-semibold mb-4 text-[#008080]">Quick Actions</h3>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <a href="manage_users.php" class="bg-blue-500 text-white p-4 rounded-md text-center hover:bg-blue-600">
+                <a href="manage_users.php" class="bg-[#008080] text-white p-4 rounded-md text-center hover:bg-[#006666] transition">
                     Manage Users
                 </a>
-                <a href="reports.php" class="bg-green-500 text-white p-4 rounded-md text-center hover:bg-green-600">
+                <a href="reports.php" class="bg-[#008080] text-white p-4 rounded-md text-center hover:bg-[#006666] transition">
                     View Reports
                 </a>
-                <a href="add_users.php" class="bg-yellow-500 text-white p-4 rounded-md text-center hover:bg-yellow-600">
+                <a href="add_users.php" class="bg-[#008080] text-white p-4 rounded-md text-center hover:bg-[#006666] transition">
                     Add New User
                 </a>
-                <a href="system_settings.php" class="bg-purple-500 text-white p-4 rounded-md text-center hover:bg-purple-600">
+                <a href="system_settings.php" class="bg-[#008080] text-white p-4 rounded-md text-center hover:bg-[#006666] transition">
                     System Settings
                 </a>
             </div>
@@ -103,13 +103,13 @@ $totalStudents = $pdo->query("SELECT COUNT(*) FROM users WHERE role = 'student'"
 
         <!-- Optional Announcement or System Log Section -->
         <div class="bg-white p-6 rounded-lg shadow">
-            <h3 class="text-xl font-semibold mb-4">System Announcements</h3>
+            <h3 class="text-xl font-semibold mb-4 text-[#008080]">System Announcements</h3>
             <p class="text-gray-600">No new announcements at this time.</p>
         </div>
 
         <!-- System Health (Optional Future Widget) -->
         <div class="bg-white p-6 rounded-lg shadow">
-            <h3 class="text-xl font-semibold mb-4">System Health</h3>
+            <h3 class="text-xl font-semibold mb-4 text-[#008080]">System Health</h3>
             <div class="flex space-x-4">
                 <div class="flex-1 bg-green-100 p-4 rounded-md">
                     <h4 class="font-medium">Database</h4>

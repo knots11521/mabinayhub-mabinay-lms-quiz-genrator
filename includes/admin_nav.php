@@ -1,5 +1,5 @@
 <!-- Sidebar Navigation -->
-<div id="sidebar" class="fixed md:relative inset-y-0 left-0 w-64 bg-white shadow-lg md:shadow-none transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out z-50">
+<div id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-white shadow-lg transition-transform duration-300 transform -translate-x-full md:translate-x-0">
     <div class="p-5 flex justify-between items-center border-b">
         <h2 class="text-lg font-bold text-gray-700">Admin Panel</h2>
         <button id="close-btn" class="md:hidden text-gray-600 text-2xl focus:outline-none" onclick="toggleSidebar()">✖</button>
